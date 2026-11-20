@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "256186957099",
+    "project_id": "dam2026-3e7fe",
+    "storage_bucket": "dam2026-3e7fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256186957099:android:a10c7863863e64a82c596e",
+        "android_client_info": {
+          "package_name": "com.example.proyecto_dam_2026"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCse7x7JN--Nrc_TKqlaEXquBHaRrbQLtg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
