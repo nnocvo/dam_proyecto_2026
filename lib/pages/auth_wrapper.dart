@@ -18,7 +18,7 @@ class AuthWrapper extends StatelessWidget {
             body: Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: kAmbarClaro,
+                color: kPetroleo,
               ),
             ),
           );

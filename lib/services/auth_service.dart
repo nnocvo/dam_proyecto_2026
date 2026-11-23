@@ -2,6 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
+  User? get usuarioActual {
+    return FirebaseAuth.instance.currentUser;
+  }
+
   Future<void> loginGoogle() async {
     try {
       final cuenta = await GoogleSignIn.instance.authenticate();
