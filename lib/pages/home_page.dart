@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_dam_2026/constants.dart';
+import 'package:proyecto_dam_2026/pages/publicar_page.dart';
 import 'package:proyecto_dam_2026/services/auth_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -61,6 +62,19 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PublicarPage()),
+          );
+        },
+        icon: const FaIcon(FontAwesomeIcons.plus),
+        label: const Text('Publicar'),
+        backgroundColor: kAmbar,
+        foregroundColor: kPetroleo,
+      ),
+
       appBar: AppBar(title: Text('Bienvenido, $primerNombre!!')),
       body: Center(child: Text('aqui irá la lista')),
     );
