@@ -35,4 +35,22 @@ class FsService {
       'creadoEn': FieldValue.serverTimestamp(),
     });
   }
+
+  Stream<QuerySnapshot> publicaciones() {
+    return FirebaseFirestore.instance.collection('publicaciones').snapshots();
+  }
+
+  Future<void> marcarDevuelto(String id) {
+    return FirebaseFirestore.instance
+        .collection('publicaciones')
+        .doc(id)
+        .update({'estado': 'Devuelto'});
+  }
+
+  Future<void> borrarPublicacion(String id) {
+    return FirebaseFirestore.instance
+        .collection('publicaciones')
+        .doc(id)
+        .delete();
+  }
 }
