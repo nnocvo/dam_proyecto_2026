@@ -22,7 +22,7 @@ class FsService {
     required String autorNombre,
   }) {
     return FirebaseFirestore.instance.collection('publicaciones').add({
-      'titulo': titulo,
+      'tiulo': titulo,
       'descripcion': descripcion,
       'tipo': tipo,
       'categoria': categoria,

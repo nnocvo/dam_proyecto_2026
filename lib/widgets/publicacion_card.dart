@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:proyecto_dam_2026/constants.dart';
 
 class PublicacionCard extends StatelessWidget {
   final QueryDocumentSnapshot item;
   final String miUid;
-  final VoidCallback alMarcarDevuelto;
-  final VoidCallback alBorrar;
+  final void Function() alMarcarDevuelto;
+  final void Function() alBorrar;
 
   const PublicacionCard({
     super.key,
@@ -26,147 +24,63 @@ class PublicacionCard extends StatelessWidget {
     String tipo = datos['tipo'] ?? 'Perdido';
     String categoria = datos['categoria'] ?? 'Otros';
     String estado = datos['estado'] ?? 'Vigente';
-    String autor = datos['autorUid'] ?? '';
+    String autorUid = datos['autorUid'] ?? '';
 
-    // Revisar si la publicación es mía
-    bool esMia = false;
-    if (autor == miUid) {
-      esMia = true;
-    }
+    bool esMia = (autorUid == miUid);
+    bool devuelto = (estado == 'Devuelto');
 
-    // si fue devuelto
-    bool devuelto = false;
-    if (estado == 'Devuelto') {
-      devuelto = true;
-    }
+    Color colorFondo = devuelto ? Colors.grey.shade300 : Colors.white;
 
-    // Elegir colores según tipo y estado
-    Color colorTipo = kEncontrado;
-    if (tipo == 'Perdido') {
-      colorTipo = kPerdido;
-    }
-
-    Color colorEstado = kAmbar;
-    Color colorFondo = Colors.white;
-    Color colorBorde = colorTipo;
-    if (devuelto) {
-      colorEstado = kDevuelto;
-      colorFondo = Colors.grey.shade200;
-      colorBorde = kDevuelto;
-    }
-
-    // Preparar el widget de la foto
     Widget widgetFoto;
     if (datos['foto'] != null && datos['foto'] is Blob) {
       Blob fotoBlob = datos['foto'];
-      widgetFoto = Image.memory(fotoBlob.bytes, fit: BoxFit.cover);
+      widgetFoto = Image.memory(
+        fotoBlob.bytes,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+      );
     } else {
-      widgetFoto = Container(
-        color: const Color.fromRGBO(252, 227, 186, 1),
-        child: FaIcon(FontAwesomeIcons.image, color: kPetroleo),
+      widgetFoto = const SizedBox(
+        width: 60,
+        height: 60,
+        child: Icon(Icons.image_not_supported, color: Colors.grey),
       );
     }
 
     return Card(
       color: colorFondo,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorBorde, width: 1.5),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              // Miniatura de la foto
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(width: 75, height: 75, child: widgetFoto),
-              ),
-              const SizedBox(width: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(8),
 
-              // Título, categoría, tipo y estado
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: kPetroleoOscuro,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Categoría: $categoria',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        etiqueta(tipo, colorTipo),
-                        etiqueta(estado, colorEstado),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: widgetFoto,
+        ),
 
-              // Puntos 6 y 7: Botones solo para el autor
-              if (esMia)
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!devuelto)
-                      IconButton(
-                        tooltip: 'Marcar como devuelto',
-                        icon: Icon(
-                          MdiIcons.checkCircle,
-                          color: kDevuelto,
-                          size: 22,
-                        ),
-                        onPressed: alMarcarDevuelto,
-                      ),
+        title: Text(
+          titulo,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('Categoría: $categoria\nTipo: $tipo | Estado: $estado'),
+
+        trailing: esMia
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!devuelto)
                     IconButton(
-                      tooltip: 'Borrar publicación',
-                      icon: Icon(MdiIcons.trashCan, color: kPerdido, size: 22),
-                      onPressed: alBorrar,
+                      icon: const Icon(Icons.check_circle, color: Colors.green),
+                      onPressed: alMarcarDevuelto,
                     ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget etiqueta(String texto, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        texto,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: alBorrar,
+                  ),
+                ],
+              )
+            : null,
       ),
     );
   }
