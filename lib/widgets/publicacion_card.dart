@@ -1,18 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:proyecto_dam_2026/constants.dart';
 
 class PublicacionCard extends StatelessWidget {
   final QueryDocumentSnapshot item;
-  final String miCorreo;
+  final String miUid;
   final VoidCallback alMarcarDevuelto;
   final VoidCallback alBorrar;
 
   const PublicacionCard({
     super.key,
     required this.item,
-    required this.miCorreo,
+    required this.miUid,
     required this.alMarcarDevuelto,
     required this.alBorrar,
   });
@@ -25,11 +26,11 @@ class PublicacionCard extends StatelessWidget {
     String tipo = datos['tipo'] ?? 'Perdido';
     String categoria = datos['categoria'] ?? 'Otros';
     String estado = datos['estado'] ?? 'Vigente';
-    String autor = datos['autor'] ?? '';
+    String autor = datos['autorUid'] ?? '';
 
     // Revisar si la publicación es mía
     bool esMia = false;
-    if (autor == miCorreo) {
+    if (autor == miUid) {
       esMia = true;
     }
 
@@ -62,7 +63,7 @@ class PublicacionCard extends StatelessWidget {
     } else {
       widgetFoto = Container(
         color: const Color.fromRGBO(252, 227, 186, 1),
-        child: Icon(MdiIcons.imageOff, color: kPetroleo),
+        child: FaIcon(FontAwesomeIcons.image, color: kPetroleo),
       );
     }
 
@@ -75,9 +76,7 @@ class PublicacionCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // Tu compañero conectará aquí la página de detalle (Punto 5)
-        },
+        onTap: () {},
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(
