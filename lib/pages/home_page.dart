@@ -130,17 +130,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      backgroundColor:
-          Colors.white, // O kCrema, si lo tienes definido en constants
+      backgroundColor: Colors.white,
       drawer: Drawer(
-        backgroundColor: Colors.white, // O kCrema
+        backgroundColor: Colors.white,
         child: Column(
           children: [
             UserAccountsDrawerHeader(
               accountName: Text(nombre),
               accountEmail: Text(correo),
               currentAccountPicture: CircleAvatar(
-                backgroundColor: kAmbar, // O kAmbarClaro
+                backgroundColor: kAmbar,
                 backgroundImage: imagenAvatar,
                 child: iconoAvatar,
               ),
