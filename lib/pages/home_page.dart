@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_dam_2026/constants.dart';
 import 'package:proyecto_dam_2026/pages/publicar_page.dart';
+import 'package:proyecto_dam_2026/services/auth_service.dart';
 import 'package:proyecto_dam_2026/services/fs_service.dart';
 import 'package:proyecto_dam_2026/widgets/publicacion_card.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,8 +21,10 @@ class _HomePageState extends State<HomePage> {
   bool verSoloMias = false;
 
   String get miUid => FirebaseAuth.instance.currentUser?.uid ?? '';
+
   String get miNombre {
-    String nombreCompleto = FirebaseAuth.instance.currentUser?.uid ?? '';
+    String nombreCompleto =
+        FirebaseAuth.instance.currentUser?.displayName ?? 'Usuario';
     return nombreCompleto.split(' ')[0];
   }
 
@@ -58,7 +62,9 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('¿Borrar publicación?'),
-        content: const Text('Esta acción eliminará. No se puede deshacer.'),
+        content: const Text(
+          'Esta acción destruirá el documento y su imagen adjunta. No se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -80,25 +86,107 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Hola, $miNombre'),
-        backgroundColor: kPetroleo,
+  void confirmarSalida(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Cerrar sesión?'),
+        content: const Text('Saldrás de tu cuenta actual.'),
         actions: [
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: Icon(verSoloMias ? Icons.filter_alt_off : Icons.filter_alt),
-            label: Text(verSoloMias ? 'Ver Todo' : 'Mis Avisos'),
-            onPressed: () {
-              setState(() {
-                verSoloMias = !verSoloMias;
-              });
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPetroleo,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              Navigator.pop(context);
+              await AuthService().logout();
             },
+            child: const Text('Cerrar Sesión'),
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final usuario = FirebaseAuth.instance.currentUser;
+    final nombre = usuario?.displayName ?? 'Usuario';
+    final correo = usuario?.email ?? 'Sin correo';
+    final fotoUrl = usuario?.photoURL;
+
+    ImageProvider? imagenAvatar;
+    Widget? iconoAvatar;
+
+    if (fotoUrl != null) {
+      imagenAvatar = NetworkImage(fotoUrl);
+    } else {
+      iconoAvatar = const Icon(Icons.person, size: 40, color: kPetroleo);
+    }
+
+    return Scaffold(
+      backgroundColor:
+          Colors.white, // O kCrema, si lo tienes definido en constants
+      drawer: Drawer(
+        backgroundColor: Colors.white, // O kCrema
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(nombre),
+              accountEmail: Text(correo),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: kAmbar, // O kAmbarClaro
+                backgroundImage: imagenAvatar,
+                child: iconoAvatar,
+              ),
+              decoration: const BoxDecoration(color: kPetroleo),
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.formatListBulleted, color: kPetroleo),
+              title: const Text('Todas las publicaciones'),
+              selected: !verSoloMias,
+              onTap: () {
+                setState(() {
+                  verSoloMias = false;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(MdiIcons.accountCheck, color: kPetroleo),
+              title: const Text('Mis publicaciones'),
+              selected: verSoloMias,
+              onTap: () {
+                setState(() {
+                  verSoloMias = true;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            const Spacer(),
+            ListTile(
+              leading: Icon(MdiIcons.logout, color: kPetroleo),
+              title: const Text('Cerrar sesión'),
+              onTap: () {
+                Navigator.pop(context);
+                confirmarSalida(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+
+      appBar: AppBar(
+        title: Text('Hola, $miNombre'),
+        backgroundColor: kPetroleo,
+      ),
+
       body: StreamBuilder<QuerySnapshot>(
         stream: fsService.publicaciones(),
         builder: (context, snapshot) {
@@ -107,7 +195,9 @@ class _HomePageState extends State<HomePage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No hay publicaciones registradas.'));
+            return const Center(
+              child: Text('No hay publicaciones registradas.'),
+            );
           }
 
           var documentos = snapshot.data!.docs;
@@ -140,6 +230,7 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: kAmbar,
         child: const Icon(Icons.add, color: Colors.white),
